@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Tarea;
 use App\Http\Requests\StoreTareaRequest;
 use App\Http\Requests\UpdateTareaRequest;
+use Illuminate\Routing\Controller;
 
 class TareaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    public function __construct()
+    {
+        $this->middleware('auth'); // Applies to all methods
+    }
+    
     public function index()
     {
         //
