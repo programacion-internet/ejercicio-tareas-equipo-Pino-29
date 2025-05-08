@@ -21,4 +21,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
+Route::resource('tareas', \App\Http\Controllers\TareaController::class);
 require __DIR__.'/auth.php';
