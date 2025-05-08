@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Tarea;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
 class TareaPolicy
@@ -11,6 +12,8 @@ class TareaPolicy
     /**
      * Determine whether the user can view any models.
      */
+
+    use HandlesAuthorization;
     public function viewAny(User $user): bool
     {
         return false;
@@ -62,5 +65,11 @@ class TareaPolicy
     public function forceDelete(User $user, Tarea $tarea): bool
     {
         return false;
+    }
+
+    public function invite(User $user, Tarea $tarea): bool
+    {
+        // only the task’s creator can invite others
+        return $user->id === $tarea->user_id;
     }
 }

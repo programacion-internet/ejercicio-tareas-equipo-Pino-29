@@ -8,12 +8,16 @@ use App\Http\Requests\UpdateTareaRequest;
 use App\Models\User;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TareaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    use AuthorizesRequests;
+    
     public function __construct()
     {
         $this->middleware('auth'); // Applies to all methods
@@ -26,8 +30,8 @@ class TareaController extends Controller
         // Start with only the current user’s tasks (and any they’re invited to)
         $query = Tarea::with('owner')
             ->where(function($q) use ($userId) {
-                $q->where('user_id', $userId);
-                // ->orWhereHas('invitedUsers', fn($q2) => $q2->where('user_id', $userId));
+                $q->where('user_id', $userId)
+                ->orWhereHas('users', fn($q2) => $q2->where('user_id', $userId));
             });
 
         // Apply the search filter if present
@@ -69,11 +73,14 @@ class TareaController extends Controller
     public function show(Tarea $tarea)
     {
         // Check if the authenticated user is the owner of the task
-        if ($tarea->user_id !== auth()->id()) {
+        if ($tarea->user_id !== auth()->id() && !$tarea->users->contains(auth()->id())) {
             abort(403, 'Unauthorized action.');
         }
-
-        return view('tareas.show', compact('tarea'));
+        
+        $users = User::select('id', 'name', 'email')
+             ->where('id', '!=', auth()->id())
+             ->get();
+        return view('tareas.show', compact('tarea', 'users'));
     }
 
     /**
@@ -99,5 +106,27 @@ class TareaController extends Controller
     {
         $tarea->delete();
         return redirect()->route('tareas.index')->with('success', 'Tarea deleted successfully');
+    }
+
+    public function invite(Request $request, Tarea $tarea)
+    {
+        // 1) Validate an array of user IDs
+        $data = $request->validate([
+            'invitados'   => 'required|array',
+            'invitados.*' => 'exists:users,id',
+        ]);
+        
+        // 2) Policy check
+        $this->authorize('invite', $tarea);
+        
+        // 3) Attach (or better: syncWithoutDetaching to avoid duplicates)
+        //    Make sure your Tarea model has a belongsToMany called `invitedUsers()`
+        $tarea->users()
+        ->sync($data['invitados']);
+        
+        // 4) Redirect back with a success flash
+        return redirect()
+            ->route('tareas.show', $tarea)
+            ->with('success', 'Usuarios invitados correctamente');
     }
 }

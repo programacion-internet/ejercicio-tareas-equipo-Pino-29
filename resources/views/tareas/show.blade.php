@@ -39,6 +39,35 @@
                 </div>
             @endif
 
+            @can('invite', $tarea)
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">Invitar Usuarios</h2>
+                <form action="{{ route('tareas.invite', $tarea) }}" method="POST">
+                    @csrf
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach($users as $user)
+                            <label
+                                class="block bg-gray-50 hover:bg-gray-100 rounded-lg p-4 cursor-pointer transition shadow-sm">
+                                <div class="flex items-start">
+                                    <input type="checkbox" name="invitados[]" value="{{ $user->id }}"
+                                        class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-200" {{$tarea->users->contains($user->id) ? 'checked' : ''}}/>
+                                    <div class="ml-3">
+                                        <p class="text-gray-800 font-medium">{{ $user->name }}</p>
+                                        <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                                    </div>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <button type="submit"
+                        class="mt-6 inline-flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
+                        Enviar invitaciones
+                    </button>
+                </form>
+            </div>
+            @endcan
+
             {{-- Actions: Back & Delete --}}
             <div class="mt-6 flex justify-between items-center">
                 <!-- Back to list -->
