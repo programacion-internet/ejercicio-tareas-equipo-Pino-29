@@ -4,6 +4,7 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TareaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,4 +23,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::resource('tareas', \App\Http\Controllers\TareaController::class);
+
+Route::POST('/tareas/{tarea}/invite', [TareaController::class, 'invite'])
+     ->name('tareas.invite')
+     ->middleware('auth');
+
 require __DIR__.'/auth.php';
