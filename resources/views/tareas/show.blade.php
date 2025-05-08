@@ -9,7 +9,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">{{ $tarea->nombre }}</h1>
                 @if($tarea->fecha_limite->isPast())
                     <span class="bg-red-100 text-red-800 text-sm font-semibold px-2 py-1 rounded">
-                        Missing
+                        Vencida
                     </span>
                 @endif
             </div>
