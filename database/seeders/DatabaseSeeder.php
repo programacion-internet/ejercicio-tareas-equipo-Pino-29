@@ -14,7 +14,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(10)->create();
-        Tarea::factory()->count(10)->create();
+        // User::factory()->create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@admin.com',
+        //     'password'=> bcrypt('password'),
+        // ]);
+
+        User::factory()->create([
+            'name' => 'user1',
+            'email' => 'user1@gmail.com',
+            'password'=> bcrypt('password'),
+        ]);
+
+        User::factory()->create([
+            'name' => 'user2',
+            'email' => 'user2@gmail.com',
+            'password'=> bcrypt('password'),
+        ]);
+        
+        Tarea::factory()->count(count: 30)->create();
     }
 }
