@@ -68,7 +68,12 @@ class TareaController extends Controller
      */
     public function show(Tarea $tarea)
     {
-        //
+        // Check if the authenticated user is the owner of the task
+        if ($tarea->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('tareas.show', compact('tarea'));
     }
 
     /**
