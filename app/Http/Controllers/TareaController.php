@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Tarea;
 use App\Http\Requests\StoreTareaRequest;
 use App\Http\Requests\UpdateTareaRequest;
+use App\Models\User;
 use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
 
 class TareaController extends Controller
 {
@@ -17,9 +19,32 @@ class TareaController extends Controller
         $this->middleware('auth'); // Applies to all methods
     }
     
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $userId = auth()->id();
+
+        // Start with only the current user’s tasks (and any they’re invited to)
+        $query = Tarea::with('owner')
+            ->where(function($q) use ($userId) {
+                $q->where('user_id', $userId);
+                // ->orWhereHas('invitedUsers', fn($q2) => $q2->where('user_id', $userId));
+            });
+
+        // Apply the search filter if present
+        if ($search = $request->input('search')) {
+            $query->where(fn($q) => 
+                $q->where('nombre', 'like', "%{$search}%")
+                ->orWhere('descripcion', 'like', "%{$search}%")
+            );
+        }
+
+        // Order, paginate, keep query string
+        $tareas = $query
+            ->orderBy('fecha_limite', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('tareas.index', compact('tareas'));
     }
 
     /**
