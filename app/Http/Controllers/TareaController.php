@@ -114,30 +114,28 @@ class TareaController extends Controller
      */
     public function destroy(Tarea $tarea)
     {
+        // Check if the authenticated user is the owner of the task through the policy
+        $this->authorize('delete', $tarea);
         $tarea->delete();
         return redirect()->route('tareas.index')->with('success', 'Tarea deleted successfully');
     }
 
     public function invite(Request $request, Tarea $tarea)
     {
-        // 1) Validate an array of user IDs
+        $this->authorize('invite', $tarea);
+
         $data = $request->validate([
             'invitados'   => 'sometimes|array',
             'invitados.*' => 'integer|exists:users,id',
         ]);
-        
-        // 2) Policy check
-        $this->authorize('invite', $tarea);
         
         $invited = $data['invitados'] ?? [];
         $syncResult = $tarea->users()->sync($invited);
         $attached = $syncResult['attached'];
         $detached = $syncResult['detached'];
 
-        // dd($attached);
         if (!empty($attached)) {
             $usersAdded = User::whereIn('id', $attached)->get();
-            // dd($usersAdded);
             foreach ($usersAdded as $user) {
                 Mail::to($user->email)
     ->send(new InvitationMail($tarea));
@@ -146,19 +144,12 @@ class TareaController extends Controller
 
         if (!empty($detached)) {
             $usersRemoved = User::whereIn('id', $detached)->get();
-            // dd($usersRemoved);
             foreach ($usersRemoved as $user) {
                 Mail::to($user->email)
     ->send(new RemovalNotification($tarea));
             }
         }
 
-
-        // $users = User::whereIn('id', $data['invitados'])->get();
-        // foreach ($users as $user) {
-        //     Mail::to($user->email)->send(new InvitationMail($tarea));
-        // }
-        // 4) Redirect back with a success flash
         return redirect()
             ->route('tareas.show', $tarea)
             ->with('success', 'Usuarios invitados y notificados por email');
