@@ -90,7 +90,10 @@ class TareaController extends Controller
         $users = User::select('id', 'name', 'email')
              ->where('id', '!=', auth()->id())
              ->get();
-        return view('tareas.show', compact('tarea', 'users'));
+        
+        $archivos = $tarea->archivos()->with('uploader')->get();
+
+        return view('tareas.show', compact('tarea', 'users', 'archivos'));
     }
 
     /**

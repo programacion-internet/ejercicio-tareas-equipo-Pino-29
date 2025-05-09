@@ -39,6 +39,8 @@
                 </div>
             @endif
 
+            @include('tareas.partials._files')
+
             @can('invite', $tarea)
             <div class="bg-white shadow rounded-lg p-6 mb-6">
                 <h2 class="text-2xl font-semibold mb-4">Invitar Usuarios</h2>

@@ -37,7 +37,7 @@ class Tarea extends Model
         return $this->belongsToMany(User::class, 'tarea_user', 'tarea_id', 'user_id');
     }
 
-    public function files()
+    public function archivos()
     {
         return $this->hasMany(Archivo::class);
     }
