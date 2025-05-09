@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Notifications\InvitacionTarea;
+use Illuminate\Support\Facades\Notification;
+use App\Mail\InvitationMail;
+use Illuminate\Support\Facades\Mail;
 
 class TareaController extends Controller
 {
@@ -123,10 +127,15 @@ class TareaController extends Controller
         //    Make sure your Tarea model has a belongsToMany called `invitedUsers()`
         $tarea->users()
         ->sync($data['invitados']);
-        
+
+        $users = User::whereIn('id', $data['invitados'])->get();
+        foreach ($users as $user) {
+            Mail::to($user->email)->send(new InvitationMail($tarea));
+        }
+
         // 4) Redirect back with a success flash
         return redirect()
             ->route('tareas.show', $tarea)
-            ->with('success', 'Usuarios invitados correctamente');
+            ->with('success', 'Usuarios invitados y notificados por email');
     }
 }
