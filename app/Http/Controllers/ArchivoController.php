@@ -66,7 +66,7 @@ class ArchivoController extends Controller
     {
         $this->authorize('update', $tarea);
 
-        Storage::disk('public')->delete($archivo->path);
+        Storage::disk()->delete($archivo->path);
         $archivo->delete();
 
         return back()->with('success', 'Archivo eliminado correctamente');
