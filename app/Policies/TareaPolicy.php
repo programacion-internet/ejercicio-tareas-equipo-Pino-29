@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Tarea;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
 class TareaPolicy
@@ -11,6 +12,8 @@ class TareaPolicy
     /**
      * Determine whether the user can view any models.
      */
+
+    use HandlesAuthorization;
     public function viewAny(User $user): bool
     {
         return false;
@@ -21,6 +24,10 @@ class TareaPolicy
      */
     public function view(User $user, Tarea $tarea): bool
     {
+        if ($user->id === $tarea->user_id || $tarea->users->contains($user)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -37,6 +44,10 @@ class TareaPolicy
      */
     public function update(User $user, Tarea $tarea): bool
     {
+        if ($user->id === $tarea->user_id || $tarea->users->contains($user)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -45,7 +56,7 @@ class TareaPolicy
      */
     public function delete(User $user, Tarea $tarea): bool
     {
-        return false;
+        return $user->id === $tarea->user_id;
     }
 
     /**
@@ -62,5 +73,11 @@ class TareaPolicy
     public function forceDelete(User $user, Tarea $tarea): bool
     {
         return false;
+    }
+
+    public function invite(User $user, Tarea $tarea): bool
+    {
+        // only the task’s creator can invite others
+        return $user->id === $tarea->user_id;
     }
 }
