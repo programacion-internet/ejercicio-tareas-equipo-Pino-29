@@ -61,7 +61,7 @@ class TareaController extends Controller
      */
     public function create()
     {
-        //
+        return view('tareas.create');
     }
 
     /**
@@ -69,7 +69,12 @@ class TareaController extends Controller
      */
     public function store(StoreTareaRequest $request)
     {
-        //
+        // dd($request->all());
+        $data = $request->validated();
+        $data['user_id'] = auth()->id(); // Set the authenticated user's ID
+        $tarea = Tarea::create($data);
+        // $tarea = Tarea::create($request->all());
+        return redirect()->route('tareas.show', $tarea->id)->with('success','Tarea created successfully');
     }
 
     /**
