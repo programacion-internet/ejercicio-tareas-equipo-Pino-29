@@ -44,16 +44,16 @@
                 <h2 class="text-2xl font-semibold mb-4">Invitar Usuarios</h2>
                 <form action="{{ route('tareas.invite', $tarea) }}" method="POST">
                     @csrf
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="flex flex-wrap gap-4">
                         @foreach($users as $user)
                             <label
-                                class="block bg-gray-50 hover:bg-gray-100 rounded-lg p-4 cursor-pointer transition shadow-sm">
+                                class="block w-full sm:w-1/2 lg:w-1/3 bg-gray-50 hover:bg-gray-100 rounded-lg p-4 cursor-pointer transition shadow-sm">
                                 <div class="flex items-start">
                                     <input type="checkbox" name="invitados[]" value="{{ $user->id }}"
                                         class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-200" {{$tarea->users->contains($user->id) ? 'checked' : ''}}/>
                                     <div class="ml-3">
                                         <p class="text-gray-800 font-medium">{{ $user->name }}</p>
-                                        <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                                        <p class="text-xs text-gray-500 break-words">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </label>
