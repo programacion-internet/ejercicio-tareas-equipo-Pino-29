@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('file_uploads', function (Blueprint $table) {
+        Schema::create('archivos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tarea_id')
                   ->constrained()
