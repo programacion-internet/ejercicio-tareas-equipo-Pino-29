@@ -48,7 +48,7 @@ class TareaPolicy
      */
     public function delete(User $user, Tarea $tarea): bool
     {
-        return false;
+        return $user->id === $tarea->user_id;
     }
 
     /**

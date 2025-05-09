@@ -69,6 +69,7 @@
             @endcan
 
             {{-- Actions: Back & Delete --}}
+            @can('delete', $tarea)
             <div class="mt-6 flex justify-between items-center">
                 <!-- Back to list -->
                 <a href="{{ route('tareas.index') }}" class="text-blue-600 hover:underline font-medium">
@@ -86,6 +87,7 @@
                     </button>
                 </form>
             </div>
+            @endcan
         </div>
     </div>
 @endsection
