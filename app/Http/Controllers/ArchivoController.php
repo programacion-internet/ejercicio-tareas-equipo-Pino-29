@@ -38,14 +38,16 @@ class ArchivoController extends Controller
         $this->authorize('update', $tarea);
 
         $file = $request->file('archivo');
-        $filename = time().'_'.$file->getClientOriginalName();
-        $path = $file->storeAs("tareas/{$tarea->id}", $filename, 'public');
-
-        $tarea->archivos()->create([
-            'user_id'       => auth()->id(),
+        $filepath = $file->store('tareas/'.$tarea->id);
+        $archivo = new Archivo([
+            'tarea_id' => $tarea->id,
+            'user_id' => auth()->id(),
             'original_name' => $file->getClientOriginalName(),
-            'path'          => $path,
+            'path' => $filepath,
         ]);
+
+        $archivo->save();
+        $tarea->archivos()->save($archivo);
 
         return back()->with('success', 'Archivo subido correctamente');
     }
