@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function(){
             ->name('tareas.archivos.index');
     Route::delete ('tareas/{tarea}/archivos/{file}', [ArchivoController::class,'destroy'])
             ->name('tareas.archivos.destroy');
+    Route::get ('tareas/{tarea}/archivos/{file}', [ArchivoController::class,'download'])
+    ->name('tareas.archivos.download');
 });
 
 require __DIR__.'/auth.php';

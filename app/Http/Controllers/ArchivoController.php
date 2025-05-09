@@ -2,74 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Archivo;
+use App\Http\Requests\StoreArchivoRequest;
 use App\Models\Tarea;
-use Illuminate\Http\Request;
+use App\Models\Archivo;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Routing\Controller;
 
 class ArchivoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    use AuthorizesRequests;
 
     public function __construct()
     {
-        $this->middleware('auth'); // Applies to all methods
+        $this->middleware('auth');
     }
 
+    // List all files for a tarea
     public function index(Tarea $tarea)
     {
-        $archivos = $tarea->archivos()->with('uploader')->get();
+        $this->authorize('view', $tarea);
 
-        return view('tarea.partials._files', compact('tarea', 'archivos'));
+        $archivos = $tarea->archivos()
+                          ->with('uploader')
+                          ->latest()
+                          ->get();
+
+        return view('tareas.partials._files', compact('tarea', 'archivos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Upload a new file
+    public function store(StoreArchivoRequest $request, Tarea $tarea)
     {
-        //
+        $this->authorize('update', $tarea);
+
+        $file = $request->file('archivo');
+        $filename = time().'_'.$file->getClientOriginalName();
+        $path = $file->storeAs("tareas/{$tarea->id}", $filename, 'public');
+
+        $tarea->archivos()->create([
+            'user_id'       => auth()->id(),
+            'original_name' => $file->getClientOriginalName(),
+            'path'          => $path,
+        ]);
+
+        return back()->with('success', 'Archivo subido correctamente');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // Download a file
+    public function show(Tarea $tarea, Archivo $archivo)
     {
-        //
+        $this->authorize('view', $tarea);
+
+        return Storage::disk('public')
+                      ->download($archivo->path, $archivo->original_name);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Archivo $archivo)
+    // Delete a file
+    public function destroy(Tarea $tarea, Archivo $archivo)
     {
-        //
+        $this->authorize('update', $tarea);
+
+        Storage::disk('public')->delete($archivo->path);
+        $archivo->delete();
+
+        return back()->with('success', 'Archivo eliminado correctamente');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Archivo $archivo)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Archivo $archivo)
+    public function download(Tarea $tarea, Archivo $archivo)
     {
-        //
-    }
+        $this->authorize('view', $tarea);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Archivo $archivo)
-    {
-        //
+        return Storage::disk('public')
+                      ->download($archivo->path, $archivo->original_name);
     }
 }

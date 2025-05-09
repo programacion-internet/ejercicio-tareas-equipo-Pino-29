@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Archivo extends Model
 {
     protected $fillable = ['tarea_id','user_id','original_name','path'];
-
+    protected $table = 'archivos';
     public function tarea()
     {
         return $this->belongsTo(Tarea::class);

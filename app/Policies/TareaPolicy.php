@@ -24,6 +24,10 @@ class TareaPolicy
      */
     public function view(User $user, Tarea $tarea): bool
     {
+        if ($user->id === $tarea->user_id || $tarea->users->contains($user)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -40,6 +44,10 @@ class TareaPolicy
      */
     public function update(User $user, Tarea $tarea): bool
     {
+        if ($user->id === $tarea->user_id || $tarea->users->contains($user)) {
+            return true;
+        }
+
         return false;
     }
 
