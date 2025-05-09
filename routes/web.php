@@ -34,9 +34,9 @@ Route::middleware('auth')->group(function(){
             ->name('tareas.archivos.store');
     Route::get    ('tareas/{tarea}/archivos',     [ArchivoController::class,'index'])
             ->name('tareas.archivos.index');
-    Route::delete ('tareas/{tarea}/archivos/{file}', [ArchivoController::class,'destroy'])
+    Route::delete ('tareas/{tarea}/archivos/{archivo}', [ArchivoController::class,'destroy'])
             ->name('tareas.archivos.destroy');
-    Route::get ('tareas/{tarea}/archivos/{file}', [ArchivoController::class,'download'])
+    Route::get ('tareas/{tarea}/archivos/{archivo}', [ArchivoController::class,'download'])
     ->name('tareas.archivos.download');
 });
 
