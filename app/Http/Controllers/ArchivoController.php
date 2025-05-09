@@ -77,7 +77,7 @@ class ArchivoController extends Controller
     {
         $this->authorize('view', $tarea);
 
-        return Storage::disk('public')
+        return Storage::disk()
                       ->download($archivo->path, $archivo->original_name);
     }
 }
