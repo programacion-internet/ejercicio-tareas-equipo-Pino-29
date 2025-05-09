@@ -30,12 +30,12 @@ Route::POST('/tareas/{tarea}/invite', [TareaController::class, 'invite'])
      ->middleware('auth');
 
 Route::middleware('auth')->group(function(){
-    Route::post   ('tareas/{tarea}/files',     [ArchivoController::class,'store'])
-            ->name('tareas.files.store');
-    Route::get    ('tareas/{tarea}/files',     [ArchivoController::class,'index'])
-            ->name('tareas.files.index');
-    Route::delete ('tareas/{tarea}/files/{file}', [ArchivoController::class,'destroy'])
-            ->name('tareas.files.destroy');
+    Route::post   ('tareas/{tarea}/archivos',     [ArchivoController::class,'store'])
+            ->name('tareas.archivos.store');
+    Route::get    ('tareas/{tarea}/archivos',     [ArchivoController::class,'index'])
+            ->name('tareas.archivos.index');
+    Route::delete ('tareas/{tarea}/archivos/{file}', [ArchivoController::class,'destroy'])
+            ->name('tareas.archivos.destroy');
 });
 
 require __DIR__.'/auth.php';
