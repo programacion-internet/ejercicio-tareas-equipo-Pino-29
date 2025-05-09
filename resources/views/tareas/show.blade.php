@@ -71,13 +71,13 @@
             @endcan
 
             {{-- Actions: Back & Delete --}}
-            @can('delete', $tarea)
             <div class="mt-6 flex justify-between items-center">
                 <!-- Back to list -->
                 <a href="{{ route('tareas.index') }}" class="text-blue-600 hover:underline font-medium">
                     ← Volver a la lista de tareas
                 </a>
-
+                
+                @can('delete', $tarea)
                 <!-- Delete button -->
                 <form action="{{ route('tareas.destroy', $tarea) }}" method="POST">
                     @csrf
@@ -88,8 +88,8 @@
                         Eliminar
                     </button>
                 </form>
+                @endcan
             </div>
-            @endcan
         </div>
     </div>
 @endsection
