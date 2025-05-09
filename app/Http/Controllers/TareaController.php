@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Notifications\InvitacionTarea;
 use Illuminate\Support\Facades\Notification;
 use App\Mail\InvitationMail;
+use App\Mail\RemovalNotification;
 use Illuminate\Support\Facades\Mail;
 
 class TareaController extends Controller
@@ -116,23 +117,42 @@ class TareaController extends Controller
     {
         // 1) Validate an array of user IDs
         $data = $request->validate([
-            'invitados'   => 'required|array',
-            'invitados.*' => 'exists:users,id',
+            'invitados'   => 'sometimes|array',
+            'invitados.*' => 'integer|exists:users,id',
         ]);
         
         // 2) Policy check
         $this->authorize('invite', $tarea);
         
-        // 3) Attach (or better: syncWithoutDetaching to avoid duplicates)
-        //    Make sure your Tarea model has a belongsToMany called `invitedUsers()`
-        $tarea->users()
-        ->sync($data['invitados']);
+        $invited = $data['invitados'] ?? [];
+        $syncResult = $tarea->users()->sync($invited);
+        $attached = $syncResult['attached'];
+        $detached = $syncResult['detached'];
 
-        $users = User::whereIn('id', $data['invitados'])->get();
-        foreach ($users as $user) {
-            Mail::to($user->email)->send(new InvitationMail($tarea));
+        // dd($attached);
+        if (!empty($attached)) {
+            $usersAdded = User::whereIn('id', $attached)->get();
+            // dd($usersAdded);
+            foreach ($usersAdded as $user) {
+                Mail::to($user->email)
+    ->send(new InvitationMail($tarea));
+            }
         }
 
+        if (!empty($detached)) {
+            $usersRemoved = User::whereIn('id', $detached)->get();
+            // dd($usersRemoved);
+            foreach ($usersRemoved as $user) {
+                Mail::to($user->email)
+    ->send(new RemovalNotification($tarea));
+            }
+        }
+
+
+        // $users = User::whereIn('id', $data['invitados'])->get();
+        // foreach ($users as $user) {
+        //     Mail::to($user->email)->send(new InvitationMail($tarea));
+        // }
         // 4) Redirect back with a success flash
         return redirect()
             ->route('tareas.show', $tarea)
